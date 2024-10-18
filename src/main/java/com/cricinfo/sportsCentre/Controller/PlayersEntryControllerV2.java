@@ -5,7 +5,6 @@ import com.cricinfo.sportsCentre.Service.PlayerEntryService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -73,5 +72,3 @@ public class PlayersEntryControllerV2 {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
-
-// test
