@@ -2,6 +2,8 @@ package com.cricinfo.sportsCentre.Service;
 
 import com.cricinfo.sportsCentre.Entity.PlayerEntry;
 import com.cricinfo.sportsCentre.Repository.PlayerEntryRepo;
+
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@Log
 public class PlayerEntryService {
 
     @Autowired
@@ -29,7 +32,7 @@ public class PlayerEntryService {
             player.setDate(lt);
             playerEntryRepo.save(player);
         }catch(Exception e){
-            log.error("Exception : ", e);
+//            log.error("Exception : ", e);
         }
 
     }
