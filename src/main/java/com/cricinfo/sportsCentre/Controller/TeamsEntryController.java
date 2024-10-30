@@ -27,7 +27,7 @@ public class TeamsEntryController {
         return teamEntryService.getAllTeams();
     }
 
-    @DeleteMapping("deleteTeam")
+    @DeleteMapping("/deleteTeam")
     public ResponseEntity<?> deleteTeam() throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         TeamsEntry team = teamEntryService.findByUserName(authentication.getName());
@@ -40,21 +40,25 @@ public class TeamsEntryController {
 
     @PutMapping("/updateTeam")
     public ResponseEntity<?> updateTeam(@RequestBody TeamsEntry team) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // add mandatory checks in controller for requestBody params != null
-        TeamsEntry currentTeam = teamEntryService.findByUserName(authentication.getName());
-        if(currentTeam != null){
-            currentTeam.setUserName(team.getUserName());
-            currentTeam.setPassword(team.getPassword());
-            if(team.getTeamType() != null) currentTeam.setTeamName(team.getTeamName());
-            if(team.getTotalMatches() != null)currentTeam.setTotalMatches(team.getTotalMatches());
-            if(team.getMatchesWon() != null)currentTeam.setMatchesWon(team.getMatchesWon());
-            if(team.getPlayerEntries() != null)currentTeam.setPlayerEntries(team.getPlayerEntries());
-            if(team.getTeamType() != null)currentTeam.setTeamType(team.getTeamType());
-            if(team.getEmail() != null)currentTeam.setEmail(team.getEmail());
-            teamEntryService.saveTeam(currentTeam);
-            return new ResponseEntity<>("User Updated", HttpStatus.OK);
+        try{
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            TeamsEntry currentTeam = teamEntryService.findByUserName(authentication.getName());
+            if(currentTeam != null){
+                currentTeam.setUserName(team.getUserName());
+                currentTeam.setPassword(team.getPassword());
+                if(team.getTeamType() != null) currentTeam.setTeamName(team.getTeamName());
+                if(team.getTotalMatches() != null)currentTeam.setTotalMatches(team.getTotalMatches());
+                if(team.getMatchesWon() != null)currentTeam.setMatchesWon(team.getMatchesWon());
+                if(team.getPlayerEntries() != null)currentTeam.setPlayerEntries(team.getPlayerEntries());
+                if(team.getTeamType() != null)currentTeam.setTeamType(team.getTeamType());
+                if(team.getEmail() != null)currentTeam.setEmail(team.getEmail());
+                teamEntryService.saveNewTeam(currentTeam);
+                return new ResponseEntity<>("User Updated", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("User not Updated", HttpStatus.BAD_REQUEST);
+            }
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-        throw new Exception("No player exists");
     }
 }

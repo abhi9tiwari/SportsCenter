@@ -18,8 +18,8 @@ import java.util.List;
 public class TeamsEntry {
     @Id
     private ObjectId id;
-    @Indexed(unique = true)
     @NonNull
+    @Indexed(unique = true)
     private String userName;
     private String teamName;
     private Long totalMatches;

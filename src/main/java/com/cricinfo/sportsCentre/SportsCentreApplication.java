@@ -25,13 +25,4 @@ public class SportsCentreApplication {
 		return new MongoTransactionManager(dbfactory);
 	}
 
-	@Bean
-	public MongoDatabaseFactory mongoDatabaseFactory() {
-		return new SimpleMongoClientDatabaseFactory("mongodb://localhost:27017/sportscentredb");
-	}
-
-	@Bean
-	public MongoTemplate mongoTemplate() {
-		return new MongoTemplate(mongoDatabaseFactory());
-	}
 }

@@ -39,7 +39,7 @@ public class PlayerEntryService {
             player.setDate(lt);
             PlayerEntry savedPlayer = playerEntryRepo.save(player);
             team.getPlayerEntries().add(savedPlayer);
-            teamEntryService.saveTeam(team);
+            teamEntryService.saveUser(team);
         }catch(Exception e){
             throw new Exception("an error has occured while saving ",e);
         }
@@ -59,7 +59,7 @@ public class PlayerEntryService {
         List<PlayerEntry> playerEntries = team.getPlayerEntries();
         playerEntries.removeIf(x -> x.getId() == id);
         team.setPlayerEntries(playerEntries);
-        teamEntryService.saveTeam(team);
+        teamEntryService.saveUser(team);
         playerEntryRepo.deleteById(id);
     }
 

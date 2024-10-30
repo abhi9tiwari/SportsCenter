@@ -18,6 +18,6 @@ public class PublicFunctions {
 
     @PostMapping("/createTeam")
     public TeamsEntry createTeam(@RequestBody TeamsEntry team){
-        return teamEntryService.saveTeam(team);
+        return teamEntryService.saveNewTeam(team);
     }
 }
