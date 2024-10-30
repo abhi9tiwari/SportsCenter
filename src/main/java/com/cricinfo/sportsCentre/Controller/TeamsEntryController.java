@@ -1,13 +1,16 @@
 package com.cricinfo.sportsCentre.Controller;
 
 import com.cricinfo.sportsCentre.Entity.TeamsEntry;
+import com.cricinfo.sportsCentre.Repository.TeamEntryRepo;
 import com.cricinfo.sportsCentre.Service.TeamEntryService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/team")
@@ -16,32 +19,42 @@ public class TeamsEntryController {
     @Autowired
     TeamEntryService teamEntryService;
 
+    @Autowired
+    TeamEntryRepo teamEntryRepo;
+
     @GetMapping("/getAllTeams")
     public List<TeamsEntry> getAllTeams(){
         return teamEntryService.getAllTeams();
     }
 
-    @PostMapping("/createTeam")
-    public TeamsEntry createTeam(@RequestBody TeamsEntry team){
-        return teamEntryService.saveTeam(team);
-    }
-
-    @PostMapping("deleteTeamById/{id}")
-    public void deleteTeamById(@PathVariable ObjectId id){
-        Optional<TeamsEntry> team = teamEntryService.findById(id);
-        if(team.isPresent()){
-            teamEntryService.deleteById(id);
+    @DeleteMapping("deleteTeam")
+    public ResponseEntity<?> deleteTeam() throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        TeamsEntry team = teamEntryService.findByUserName(authentication.getName());
+        if(team != null){
+            teamEntryService.deleteUsingUserName(authentication.getName());
+            return new ResponseEntity<>("Team deleted", HttpStatus.OK);
         }
+        throw new Exception("No team exists");
     }
 
-    @PutMapping("/updateTeam/{userName}")
-    public void updateTeam(@RequestBody TeamsEntry team, @PathVariable String userName){
+    @PutMapping("/updateTeam")
+    public ResponseEntity<?> updateTeam(@RequestBody TeamsEntry team) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // add mandatory checks in controller for requestBody params != null
-        TeamsEntry currentTeam = teamEntryService.findByUserName(userName);
+        TeamsEntry currentTeam = teamEntryService.findByUserName(authentication.getName());
         if(currentTeam != null){
             currentTeam.setUserName(team.getUserName());
             currentTeam.setPassword(team.getPassword());
+            if(team.getTeamType() != null) currentTeam.setTeamName(team.getTeamName());
+            if(team.getTotalMatches() != null)currentTeam.setTotalMatches(team.getTotalMatches());
+            if(team.getMatchesWon() != null)currentTeam.setMatchesWon(team.getMatchesWon());
+            if(team.getPlayerEntries() != null)currentTeam.setPlayerEntries(team.getPlayerEntries());
+            if(team.getTeamType() != null)currentTeam.setTeamType(team.getTeamType());
+            if(team.getEmail() != null)currentTeam.setEmail(team.getEmail());
             teamEntryService.saveTeam(currentTeam);
+            return new ResponseEntity<>("User Updated", HttpStatus.OK);
         }
+        throw new Exception("No player exists");
     }
 }
