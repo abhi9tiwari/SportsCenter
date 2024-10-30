@@ -1,7 +1,9 @@
 package com.cricinfo.sportsCentre.Controller;
 
 import com.cricinfo.sportsCentre.Entity.PlayerEntry;
+import com.cricinfo.sportsCentre.Entity.TeamsEntry;
 import com.cricinfo.sportsCentre.Service.PlayerEntryService;
+import com.cricinfo.sportsCentre.Service.TeamEntryService;
 import org.apache.coyote.BadRequestException;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class PlayersEntryControllerV2 {
     @Autowired
     PlayerEntryService playerEntryService;
 
+    @Autowired
+    TeamEntryService teamEntryService;
+
     @GetMapping("getAllPlayers")
     public ResponseEntity<List<PlayerEntry>> getAllPlayers() throws Exception {
         try{
@@ -33,10 +38,22 @@ public class PlayersEntryControllerV2 {
         }
     }
 
-    @PostMapping("createPlayer")
-    public ResponseEntity<PlayerEntry> createPlayer(@RequestBody PlayerEntry player) {
+    @GetMapping("getPlayersByTeam/{userName}")
+    public ResponseEntity<List<PlayerEntry>> getPlayersByTeam(@PathVariable String userName) throws Exception{
+        TeamsEntry team = teamEntryService.findByUserName(userName);
+        List<PlayerEntry> players = team.getPlayerEntries();
+        if(players != null && !players.isEmpty()) {
+            return new ResponseEntity<>(team.getPlayerEntries(), HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("createPlayer/{userName}")
+    public ResponseEntity<PlayerEntry> createPlayer(@RequestBody PlayerEntry player, @PathVariable String userName) {
         try{
-            playerEntryService.savePlayerEntry(player);
+            TeamsEntry team = teamEntryService.findByUserName(userName);
+            playerEntryService.savePlayerEntry(player,userName);
             return new ResponseEntity<>(player,HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -53,18 +70,18 @@ public class PlayersEntryControllerV2 {
         }
     }
 
-    @DeleteMapping("deleteById/{myId}")
-    public ResponseEntity<?> deletePlayerById(@PathVariable ObjectId myId) {
+    @DeleteMapping("deleteById/{userName}/{myId}")
+    public ResponseEntity<?> deletePlayerById(@PathVariable String userName, ObjectId myId) {
         if(playerEntryService.findPlayerById(myId).isEmpty()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }else{
-            playerEntryService.deleteById(myId);
+            playerEntryService.deleteById(myId,userName);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
     }
 
-    @PutMapping("updateById/{myId}")
-    public ResponseEntity<?> updateById(@PathVariable ObjectId myId, @RequestBody PlayerEntry player) {
+    @PutMapping("updateById/{userName}/{myId}")
+    public ResponseEntity<?> updateById(@PathVariable String userName, ObjectId myId, @RequestBody PlayerEntry player) {
         PlayerEntry old = playerEntryService.findPlayerById(myId).orElse(null);
         if(old != null){
             old.setRegisteredNumber(player.getRegisteredNumber() != null ? player.getRegisteredNumber():old.getRegisteredNumber());
